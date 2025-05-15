@@ -1,0 +1,55 @@
+{
+  "id": "full_zip_frame",
+  "name": "完整ZIP帧结构",
+  "data": {
+    "local_file_header": {
+      "signature": "UEsDBA==",
+      "version_needed": 20,
+      "general_flags": 0,
+      "compression_method": "none",
+      "last_mod_time": 32219,
+      "last_mod_date": 23191,
+      "crc32": 2554985290,
+      "compressed_size": 12,
+      "uncompressed_size": 12,
+      "file_name_len": 11,
+      "extra_field_len": 0,
+      "file_name": "example.txt",
+      "file_data": "Hello ZIP！"
+    },
+    "central_directory": {
+      "signature": "UEsBAg==",
+      "version_made_by": 20,
+      "version_needed": 20,
+      "flags": 0,
+      "compression_method": "none",
+      "mod_time": 32219,
+      "mod_date": 23191,
+      "crc32": 2554985290,
+      "compressed_size": 12,
+      "uncompressed_size": 12,
+      "file_name_len": 11,
+      "extra_field_len": 0,
+      "file_comment_len": 0,
+      "disk_number_start": 0,
+      "internal_file_attr": 0,
+      "external_file_attr": 32,
+      "local_header_offset": 0,
+      "file_name": "example.txt"
+    },
+    "end_of_central_directory": {
+      "signature": "UEsFBg==",
+      "disk_number": 0,
+      "start_central_dir_disk": 0,
+      "num_records_this_disk": 1,
+      "total_num_records": 1,
+      "central_dir_size": 57,
+      "central_dir_offset": 53,
+      "comment_length": 0,
+      "comment": ""
+    },
+    "extra_domain": {
+      "LocalTime": "2025-05-06 16:53:16"
+    }
+  }
+}

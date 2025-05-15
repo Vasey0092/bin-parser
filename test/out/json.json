@@ -1,0 +1,233 @@
+{
+    "id": "xframedata",
+    "name": "x星地数据帧",
+    "data": {
+        "sync_tag": "Gs/8HQ==",
+        "dominant_head": {
+            "version": "1",
+            "send_station_number": "9",
+            "send_device_number": "8",
+            "virtual_channel_id": "固定通道",
+            "virtual_frame_count": "22658",
+            "flag_domain": "48",
+            "dominant_head_checksum": "23130"
+        },
+        "insert_domain": {
+            "main_frame_count": "8385",
+            "frame_time_second": "1453",
+            "frame_time_millisecond": "966",
+            "ack_main_frame_count": "0",
+            "ack_enable_flag": "0",
+            "ack_tag": "0",
+            "flow_ctrl_flag": "1",
+            "reserved": "0"
+        },
+        "extra_domain": {
+            "DMTime": "2024-10-22 15:01:01",
+            "SatTime": "2017-01-01 08:24:13"
+        },
+        "data_domain": {
+            "mpdu_header": {
+                "reserved": "0",
+                "first_ptr": "0"
+            },
+            "mpdu_domain": {
+                "mpdu_data_array": [
+                    {
+                        "mpdu_data_header": {
+                            "mpdu_tag": "14",
+                            "dest_station_number": "513",
+                            "dest_device_number": "1",
+                            "src_station_number": "9",
+                            "src_device_number": "8",
+                            "flag_part": "101",
+                            "mpdu_len": "89",
+                            "send_seq_no": "481",
+                            "ack_seq_no": "0",
+                            "encrypt_info_domain": "AAAAAAAAAAA="
+                        },
+                        "mpdu_data_data": {
+                            "info_type_factory": "704所",
+                            "info_type_number": "302",
+                            "info_len": "59",
+                            "info_content": {
+                                "Wcount": "0",
+                                "Scount": "1452",
+                                "Mscount": "0",
+                                "X_XX001": "通路1",
+                                "X_XX002": "76",
+                                "X_XX003": "224",
+                                "X_XX004": "3",
+                                "X_XX005": "67",
+                                "X_XX006": "68",
+                                "X_XX007": 0,
+                                "X_XX008": "0",
+                                "X_XX009": "0",
+                                "X_XX010": "0",
+                                "X_XX011": "0",
+                                "X_XX012": 0,
+                                "X_XX013": "0",
+                                "X_XX014": "0",
+                                "X_XX015": "0.5Mbps",
+                                "X_XX016": "0.5Mbps",
+                                "X_XX017": "3",
+                                "X_XX018": "196608",
+                                "X_XX019": "23040",
+                                "X_XX020": "0",
+                                "X_XX021": "0",
+                                "X_XX022": "0",
+                                "X_XX023": "0",
+                                "X_XX024": "46",
+                                "X_XX025": "44",
+                                "X_XX026": "43",
+                                "X_XX027": "48",
+                                "X_XX028": "48",
+                                "X_XX029": "42",
+                                "X_XX030": "41",
+                                "X_XX031": "48",
+                                "X_XX032": "47",
+                                "X_XX033": "41",
+                                "X_XX034": "44",
+                                "X_XX035": "44",
+                                "X_XX036": "41",
+                                "X_XX037": "43",
+                                "X_XX038": "44",
+                                "X_XX039": "47"
+                            }
+                        },
+                        "mpdu_data_id": "9_8_X_012E",
+                        "mpdu_data_tailer": {
+                            "auth_code": "AAAAAAAAAAA=",
+                            "checksum": "29449"
+                        }
+                    },
+                    {
+                        "mpdu_data_header": {
+                            "mpdu_tag": "14",
+                            "dest_station_number": "513",
+                            "dest_device_number": "1",
+                            "src_station_number": "9",
+                            "src_device_number": "13",
+                            "flag_part": "101",
+                            "mpdu_len": "89",
+                            "send_seq_no": "481",
+                            "ack_seq_no": "0",
+                            "encrypt_info_domain": "AAAAAAAAAAA="
+                        },
+                        "mpdu_data_data": {
+                            "info_type_factory": "704所",
+                            "info_type_number": "302",
+                            "info_len": "59",
+                            "info_content": {
+                                "Wcount": "0",
+                                "Scount": "1452",
+                                "Mscount": "0",
+                                "X_XX001": "通路i2",
+                                "X_XX002": "76",
+                                "X_XX003": "224",
+                                "X_XX004": "3",
+                                "X_XX005": "67",
+                                "X_XX006": "68",
+                                "X_XX007": 0,
+                                "X_XX008": "0",
+                                "X_XX009": "0",
+                                "X_XX010": "0",
+                                "X_XX011": "0",
+                                "X_XX012": 0,
+                                "X_XX013": "0",
+                                "X_XX014": "0",
+                                "X_XX015": "0.5Mbps",
+                                "X_XX016": "0.5Mbps",
+                                "X_XX017": "3",
+                                "X_XX018": "196608",
+                                "X_XX019": "0",
+                                "X_XX020": "0",
+                                "X_XX021": "0",
+                                "X_XX022": "0",
+                                "X_XX023": "0",
+                                "X_XX024": "46",
+                                "X_XX025": "44",
+                                "X_XX026": "43",
+                                "X_XX027": "48",
+                                "X_XX028": "48",
+                                "X_XX029": "42",
+                                "X_XX030": "41",
+                                "X_XX031": "48",
+                                "X_XX032": "47",
+                                "X_XX033": "41",
+                                "X_XX034": "44",
+                                "X_XX035": "44",
+                                "X_XX036": "41",
+                                "X_XX037": "43",
+                                "X_XX038": "44",
+                                "X_XX039": "47"
+                            }
+                        },
+                        "mpdu_data_id": "9_13_X_012E",
+                        "mpdu_data_tailer": {
+                            "auth_code": "AAAAAAAAAAA=",
+                            "checksum": "14531"
+                        }
+                    },
+                    {
+                        "mpdu_data_header": {
+                            "mpdu_tag": "14",
+                            "dest_station_number": "513",
+                            "dest_device_number": "11",
+                            "src_station_number": "9",
+                            "src_device_number": "7",
+                            "flag_part": "101",
+                            "mpdu_len": "76",
+                            "send_seq_no": "7309",
+                            "ack_seq_no": "0",
+                            "encrypt_info_domain": "AAAAAAAAAAA="
+                        },
+                        "mpdu_data_data": {
+                            "info_type_factory": "704所",
+                            "info_type_number": "422",
+                            "info_len": "46",
+                            "info_content": {
+                                "dummy": "AAAAVhAAAAAAAAAAAAAFWAABAAAAAAYUAAAAAKAAAAoA/1UAAAAAAAAA"
+                            }
+                        },
+                        "mpdu_data_id": "9_7_X_01A6",
+                        "mpdu_data_tailer": {
+                            "auth_code": "AAAAAAAAAAA=",
+                            "checksum": "38880"
+                        }
+                    },
+                    {
+                        "mpdu_data_header": {
+                            "mpdu_tag": "14",
+                            "dest_station_number": "513",
+                            "dest_device_number": "1",
+                            "src_station_number": "9",
+                            "src_device_number": "7",
+                            "flag_part": "37",
+                            "mpdu_len": "80",
+                            "send_seq_no": "7311",
+                            "ack_seq_no": "0",
+                            "encrypt_info_domain": "AAAAAAAAAAA="
+                        },
+                        "mpdu_data_data": {
+                            "info_type_factory": "704所",
+                            "info_type_number": "371",
+                            "info_len": "50",
+                            "info_content": {
+                                "dummy": "AAAAVhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+                            }
+                        },
+                        "mpdu_data_id": "9_7_X_0173",
+                        "mpdu_data_tailer": {
+                            "auth_code": "AAAAAAAAAAA=",
+                            "checksum": "50541"
+                        }
+                    }
+                ]
+            },
+            "mpdu_padding": "WlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlo="
+        },
+        "checksum": "20435",
+        "encode_domain": "K8Xw5zEh/nc4RUbT5cYT5I2oDBL3vQjHH2cQK+MMGfPVfMXtdXGYqUl3LyjK+BL5kTBpc86S+7f52UzMUAx1aVldbLw4bS5YD6Q/fAXI9kMd+1Q43zo5VjxTDav8H0tfN4n6Gn1qC4SqWERFEEy22IAnkR5gf+VpBH5Qmxs8xSw="
+    }
+}

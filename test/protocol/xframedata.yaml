@@ -1,0 +1,824 @@
+meta:
+  id: xframedata
+  name: x星地数据帧
+  endian: be
+  doc: x星地数据帧
+  payload: data_domain.mpdu_domain.mpdu_data_array
+root:
+  seq:
+      - id: sync_tag
+        name: 同步头
+        contents: [0x1a, 0xcf, 0xfc, 0x1d]
+      - id: dominant_head
+        name: 主导头
+        type: dominant_head
+        size: 8
+      - id: insert_domain
+        name: 插入域
+        type: insert_domain
+        size: 10
+      - id: extra_domain
+        name: 额外信息(自动生成的数据)
+        type: extra_domain
+      - id: data_domain
+        name: 数据域
+        type: data_domain
+        size: 872
+      - id: checksum
+        name: 校验和
+        type: u2
+        setvalue: CheckSumCrc16("dominant_head", "data_domain")
+      - id: encode_domain
+        name: 编码域
+        type: bytes
+        size: 128
+        setvalue: EncodeLDPC128("dominant_head", "checksum")
+
+types:
+  dominant_head:
+    seq:
+      - id: version
+        name: 版本号
+        type: b2
+        contents: 0b01
+      - id: send_station_number
+        name: 卫星编号
+        type: b10
+        setvalue: Param("src_station_number")
+        doc: 发送节点ID_地面站编号或卫星编号
+      - id: send_device_number
+        name: 设备编号
+        type: b6
+        setvalue: Param("src_device_number")
+        doc: 发送节点ID_设备编号
+      - id: virtual_channel_id
+        name: 虚拟通道ID
+        type: b6
+        enum: virtual_channel_id_value
+        default: 0b000001
+        setvalue: Param("virtual_channel_id")
+      - id: virtual_frame_count
+        name: 虚拟通道帧计数
+        type: u2
+        default: 0x0000
+      - id: flag_domain
+        name: 标识域
+        type: u1
+        default: 0x00
+      - id: dominant_head_checksum
+        name: 主导头校验和
+        type: u2
+        default: 0x5A5A
+  insert_domain:
+    seq:
+      - id: main_frame_count
+        name: 主帧计数
+        type: u2
+        default: 0x0000
+      - id: frame_time_second
+        name: 组帧时间（秒计数）
+        type: b20
+        default: 0
+      - id: frame_time_millisecond
+        name: 组帧时间（毫秒计数）
+        type: b12
+        default: 0
+      - id: ack_main_frame_count
+        name: 应答主帧计数
+        type: u2
+        default: 0x0000
+        doc: 应答主帧计数
+      - id: ack_enable_flag
+        name: 应答启用标识
+        type: b1
+        default: 0b0
+      - id: ack_tag
+        name: 应答标志
+        type: b6
+        default: 0b000000
+      - id: flow_ctrl_flag
+        name: 流控标识
+        type: b1
+        default: 0b0
+      - id: reserved
+        name: 保留
+        type: u1
+        default: 0x00
+  extra_domain:
+    seq:
+      - id: DMTime
+        name: 地面时间
+        type: expr
+        expr: GroundTime()
+      - id: SatTime
+        name: 卫星时间
+        type: expr
+        expr: SatTime(0,root.insert_domain.frame_time_second)
+  data_domain:
+    seq:
+      - id: mpdu_header
+        name: MPDU头
+        type: mpdu_header
+        size: 2
+      - id: mpdu_domain
+        name: MPDU包域
+        type: mpdu_domain
+      - id: mpdu_padding
+        name: 填充域
+        type: bytes
+        default: [0x5A]
+        size: eos
+  mpdu_header:
+    seq:
+      - id: reserved
+        name: 保留
+        type: b5
+        default: 0b000000
+      - id: first_ptr
+        name: 第一整包头指针
+        type: b11
+        default: 0x00
+  mpdu_domain:
+    seq:
+      - id: mpdu_data_array
+        name: MPU包数组
+        type: mpdu_data
+        repeat: until(next.u1 == 0x5A)
+  mpdu_data:
+    seq:
+    - id: mpdu_data_header
+      name: MPU包头
+      type: mpdu_data_header
+    - id: mpdu_data_data
+      name: MPU包数据
+      type: mpdu_data_data
+      size: mpdu_data_header.mpdu_len - 20 - 10
+    - id: mpdu_data_id
+      name: 唯一标识
+      type: expr
+      expr: Sprintf("%d_%d_X_%04X", mpdu_data_header.src_station_number, mpdu_data_header.src_device_number, mpdu_data_data.info_type_number)
+    - id: mpdu_data_tailer
+      name: MPU包尾
+      type: mpdu_data_tailer
+      size: 10
+      doc: 包尾
+    json:
+    - id: satid
+      type: value
+      level: simple
+      value: mpdu_data_header.src_station_number
+    - id: srcid
+      type: value
+      level: simple
+      value: mpdu_data_header.src_device_number
+    - id: staid
+      type: value
+      level: simple
+      value: 0
+    - id: packid
+      type: value
+      level: simple
+      value: mpdu_data_data.info_type_number
+    - id: dataid
+      type: value
+      level: simple
+      value: mpdu_data_id
+    - id: data
+      type: object
+      level: detail
+      object: 
+        - id: DMTime
+          type: value
+          value: root.extra_domain.DMTime
+        - id: SatTime
+          type: value
+          value: root.extra_domain.SatTime
+        - id:
+          type: embed
+          value: mpdu_data_data.info_content
+  mpdu_data_header:
+    seq:
+      - id: mpdu_tag
+        name: 包标识
+        type: u1
+        default: 0b00011111
+      - id: dest_station_number
+        name: 目的卫星编号
+        type: b10
+        setvalue: Param("dest_station_number")
+        doc: 发送节点ID_地面站编号或卫星编号
+      - id: dest_device_number
+        name: 目的设备编号
+        type: b6
+        setvalue: Param("dest_device_number")
+        doc: 目的节点ID_设备编号
+      - id: src_station_number
+        name: 源卫星编号
+        type: b10
+        setvalue: Param("src_station_number")
+        doc: 源节点ID_地面站编号或卫星编号
+      - id: src_device_number
+        name: 源设备编号
+        type: b6
+        setvalue: Param("src_device_number")
+        doc: 源节点ID_设备编号
+      - id: flag_part
+        name: 标识部分
+        type: u1
+        default: 0x05
+      - id: mpdu_len
+        name: 包长度
+        type: u2
+        setvalue: SizeOf("parent")
+      - id: send_seq_no
+        name:  发送序列号
+        type: u2
+        default: 0x0000
+      - id: ack_seq_no
+        name:  确认序列号
+        type: u2
+        default: 0x0000
+      - id: encrypt_info_domain
+        name: 加密信息域
+        type: bytes
+        size: 8
+        default: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+
+  mpdu_data_data:
+    seq:
+      - id: info_type_factory
+        name: 厂商
+        type: b4
+        setvalue: Param("info_type_factory")
+        enum: factory_tag
+        doc: 信息类型厂商
+      - id: info_type_number
+        name: 信息类型编号
+        type: b12
+        setvalue: Param("info_type_number")
+      - id: info_len
+        name: 信息长度
+        type: u2
+        setvalue: SizeOf("current")
+        doc: 信息长度
+      - id: info_content
+        name: 信息内容
+        size: info_len - 4
+        type: 
+          switch-on: info_type_number
+          # cases-json: http://192.168.150.1:8090/info_type_switch.json
+          # cases-json: ../protocol/data/info_type_switch.json
+          # cases-json: file:///E:/MyWork/DevWork/9floor/AutoTest/netparaser/ProtocolServer/test/protocol/info_type_switch.json
+          cases:
+            302: tm302_data
+            800: tc800_data
+            _: tm_other_data
+        doc: 信息内容
+        
+  mpdu_data_tailer:
+    seq:
+      - id: auth_code
+        contents: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+        doc: 认证码
+      - id: checksum
+        type: u2
+        doc: 校验和
+        setvalue: CheckSumCrc16("parent.mpdu_data_header.dest_station_number", "auth_code")
+        
+  tm_other_data:
+    seq:
+      - id: dummy
+        name: 无名
+        type: bytes
+        size: eos
+
+  tm302_data:
+    seq:
+      - id: Wcount
+        name: 遥测采样周计数
+        type: u2
+        doc: p292597
+      - id: Scount
+        name: 遥测采样周内秒计数
+        type: b20
+        doc: p292599
+      - id: Mscount
+        name: 遥测采样毫秒计数
+        type: b10
+        doc: p292601
+      - id: X_XX001
+        name: 通路
+        type: b2
+        enum: enum_001
+        doc: p292603
+      - id: X_XX002
+        name: 内部电压1
+        type: u1
+        doc: p292605
+      - id: X_XX003
+        name: 内部电压2
+        type: u1
+        doc: p292607
+      - id: X_XX004
+        name: 内部温度
+        type: u1
+        doc: p292609
+      - id: X_XX005
+        name: CPU软件版本号
+        type: u1
+        doc: p292611
+      - id: X_XX006
+        name: FPGA软件版本号
+        type: u1
+        doc: p292613
+      - id: X_XX007
+        name: 软件刷新开关
+        type: u1
+        enum: enum_002
+        doc: p292615
+      - id: X_XX008
+        name: 软件刷新周期
+        type: u2
+        doc: p292617
+      - id: X_XX009
+        name: 程序1刷新计数
+        type: b4
+        doc: p292619
+      - id: X_XX010
+        name: 程序2刷新计数
+        type: b4
+        doc: p292621
+      - id: X_XX011
+        name: 程序flash存储错误扇区计数
+        type: u2
+        doc: p292623
+      - id: X_XX012
+        name: 主备标识
+        type: u1
+        enum: enum_003
+        doc: p292625
+      - id: X_XX013
+        name: 程序校验和
+        type: u4
+        doc: p292627
+      - id: X_XX014
+        name: 复位计数
+        type: u1
+        doc: p292629
+      - id: X_XX015
+        name: 上行通信速率
+        type: u1
+        enum: enum_004
+        doc: p292631
+      - id: X_XX016
+        name: 下行通信速率
+        type: u1
+        enum: enum_004
+        doc: p292633
+      - id: X_XX017
+        name: 接收错误帧计数
+        type: u1
+        doc: p292635
+      - id: X_XX018
+        name: 接收正确帧计数
+        type: u3
+        doc: p292637
+      - id: X_XX019
+        name: 站址编号
+        type: s2
+        doc: p292639
+      - id: X_XX020
+        name: 优先级
+        type: s1
+        doc: p292641
+      - id: X_XX021
+        name: 地面站经度
+        type: s2
+        expr: X_XX021/10000
+        doc: p292643
+      - id: X_XX022
+        name: 地面站纬度
+        type: u2
+        expr: X_XX022/10000
+        doc: p292645
+      - id: X_XX023
+        name: 地面站海拔
+        type: u3
+        expr: X_XX023/1000
+        doc: p292647
+      - id: X_XX024
+        name: 发射通道1功率
+        type: u1
+        doc: p292649
+      - id: X_XX025
+        name: 发射通道2功率
+        type: u1
+        doc: p292651
+      - id: X_XX026
+        name: 发射通道3功率
+        type: u1
+        doc: p292653
+      - id: X_XX027
+        name: 发射通道4功率
+        type: u1
+        doc: p292655
+      - id: X_XX028
+        name: 发射通道5功率
+        type: u1
+        doc: p292657
+      - id: X_XX029
+        name: 发射通道6功率
+        type: u1
+        doc: p292659
+      - id: X_XX030
+        name: 发射通道7功率
+        type: u1
+        doc: p292661
+      - id: X_XX031
+        name: 发射通道8功率
+        type: u1
+        doc: p292663
+      - id: X_XX032
+        name: 发射通道9功率
+        type: u1
+        doc: p292665
+      - id: X_XX033
+        name: 发射通道10功率
+        type: u1
+        doc: p292667
+      - id: X_XX034
+        name: 发射通道11功率
+        type: u1
+        doc: p292669
+      - id: X_XX035
+        name: 发射通道12功率
+        type: u1
+        doc: p292671
+      - id: X_XX036
+        name: 发射通道13功率
+        type: u1
+        doc: p292673
+      - id: X_XX037
+        name: 发射通道14功率
+        type: u1
+        doc: p292675
+      - id: X_XX038
+        name: 发射通道15功率
+        type: u1
+        doc: p292677
+      - id: X_XX039
+        name: 发射通道16功率
+        type: u1
+        doc: p292679
+    enums:
+      enum_001:
+        0x1: 通路1
+        0x2: 通路i2
+      enum_002:
+        0xaa: 打开
+        0x55: 关闭
+      enum_003:
+        0xaa: 主份
+        0x55: 备份
+      enum_004:
+        0x1: 0.1Mbps
+        0x5: 0.5Mbps
+        0x22: 2Mbps
+        0x55: 5Mbps
+        0x44: 10Mbps
+
+
+        
+  tc800_data:
+    seq:
+      - id: exec_station_number
+        name: 执行卫星编号
+        type: b10
+        setvalue: Param("dest_station_number")
+        doc: 执行设备节点ID_地面站编号或卫星编号
+      - id: exec_device_number
+        name: 执行设备编号
+        type: b6
+        setvalue: Param("dest_device_number")
+      - id: exec_subdevice_number
+        name: 执行子设备编号
+        type: u1
+        default: 0x01
+        setvalue: Param("dest_subdevice_number")
+      - id: command_id
+        name: 指令编号
+        type: u2
+        setvalue: Param("command_id")
+      - id: command_type
+        name: 指令类型
+        type: u1
+        enum: command_type_value
+        default: 0x5A
+        setvalue: Param("command_type")
+      - id: exec_time_week
+        name: 执行时间周计数
+        type: u2
+        default: 0
+        setvalue: Param("exec_time_week")
+      - id: exec_time_second
+        name: 执行时间周内秒计数
+        type: b24
+        default: 0
+        setvalue: Param("exec_time_second")
+      - id: total_count
+        name: 总包数
+        type: u2
+        default: 1
+      - id: seq_no
+        name: 包序号
+        type: u2
+        default: 0
+      - id: command_length
+        name: 指令内容长度
+        type: u2
+        setvalue: SizeOf("command_content")
+      - id: command_content
+        name: 指令内容
+        size: command_length
+        type:
+          switch-on: command_id
+          cases:
+            3016: d3016_data
+            3808: d3808_data
+            _: cmd_other_data
+      - id: checksum
+        name: 校验和
+        type: u2
+        setvalue: CheckSumCrc16("exec_station_number", "command_content")
+  cmd_other_data:
+    seq:
+      - id: dummy
+        name: 无名
+        type: bytes
+        size: eos
+  d3016_data: #S8-GNSS抗干扰参数设置指令
+    seq:
+      - id: param_count
+        name:  参数个数
+        type: u1
+      - id: param_setting
+        name:  参数设置
+        type: d3016_param_setting
+        repeat: count(param_count)
+  d3016_param_setting:
+    seq:
+      - id: param_type
+        name: 参数类型
+        type: u1
+      - id: param_value
+        name: 参数值
+        type: u4
+  d3808_data_1: #S8-交换X通道传输信息设置指令
+    seq:
+      - id: tm341_tele_switch
+        name: TM341关键遥测开关
+        type: b2
+        enum: switch_value
+      - id: tm341_tele_period
+        name: 关键遥测周期<秒>
+        type: b6
+      - id: tm341_send_time_offset
+        name: 发包时间与整点偏离时间<毫秒>
+        type: u2
+      - id: tm342_tele_switch
+        name: TM342关键遥测开关
+        type: b2
+        enum: switch_value
+      - id: tm342_tele_period
+        name: 关键遥测周期<秒>
+        type: b6
+      - id: tm342_send_time_offset
+        name: 发包时间与整点偏离时间<毫秒>
+        type: u2
+      - id: tm343_tele_switch
+        name: TM343工作状态遥测开关
+        type: b2
+        enum: switch_value
+      - id: tm343_tele_period
+        name: 重构状态周期<秒>
+        type: b6
+      - id: tm343_send_time_offset
+        name: 发包时间与整点偏离时间<毫秒>
+        type: u2
+      - id: tm344_tele_switch
+        name: TM344网络路由表开关
+        type: b2
+        enum: switch_value
+      - id: tm344_trans_count
+        name: 传输次数
+        type: b6
+      - id: tm344_interval
+        name: 每次间隔
+        type: u1
+      - id: tm345_tele_switch
+        name: TM345落地节点表开关
+        type: b2
+        enum: switch_value
+      - id: tm345_trans_count
+        name: 传输次数
+        type: b6
+      - id: tm345_interval
+        name: 每次间隔
+        type: u1
+      - id: tm346_tele_switch
+        name: TM346广播记录表开关
+        type: b2
+        enum: switch_value
+      - id: tm346_trans_count
+        name: 传输次数
+        type: b6
+      - id: tm346_interval
+        name: 每次间隔
+        type: u1
+      - id: tm347_tele_switch
+        name: TM347端口配置表开关
+        type: b2
+        enum: switch_value
+      - id: tm347_trans_count
+        name: 传输次数
+        type: b6
+      - id: tm347_interval
+        name: 每次间隔
+        type: u1
+      - id: tm348_tele_switch
+        name: TM348星间拓扑表开关
+        type: b2
+        enum: switch_value
+      - id: tm348_trans_count
+        name: 传输次数
+        type: b6
+      - id: tm348_interval
+        name: 每次间隔
+        type: u1
+      - id: tm349_tele_switch
+        name: TM349星地拓扑表开关
+        type: b2
+        enum: switch_value
+      - id: tm349_trans_count
+        name: 传输次数
+        type: b6
+      - id: tm349_interval
+        name: 每次间隔
+        type: u1
+      - id: tm350_tele_switch
+        name: TM350广播信息端口转发表开关
+        type: b2
+        enum: switch_value
+      - id: tm350_trans_count
+        name: 传输次数
+        type: b6
+      - id: tm350_interval
+        name: 每次间隔
+        type: u1
+      - id: tm509_tele_switch
+        name: TM509节点链路状态信息接收状态遥测开关上
+        type: b2
+        enum: switch_value
+      - id: tm509_tele_period
+        name: 重构状态周期<秒>
+        type: b6
+      - id: tm509_send_time_offset
+        name: 发包时间与整点偏离时间<毫秒>
+        type: u2
+  d3808_data: #S8-交换X通道传输信息设置指令
+    seq:
+      - id: B000
+        name: TM341关键遥测开关
+        type: b2
+        enum: enum_001
+      - id: B0
+        name: 关键遥测周期<秒>
+        type: b6
+      - id: B1
+        name: 发包时间与整点偏离时间<毫秒>
+        type: u2
+      - id: B300
+        name: TM342详细遥测开关
+        type: b2
+        enum: enum_001
+      - id: B3
+        name: 详细遥测周期<秒>
+        type: b6
+      - id: B4
+        name: 发包时间与整点偏离时间<毫秒>
+        type: u2
+      - id: B600
+        name: TM343工作状态遥测开关
+        type: b2
+        enum: enum_001
+      - id: B6
+        name: 重构状态周期<秒>
+        type: b6
+      - id: B7
+        name: 发包时间与整点偏离时间<毫秒>
+        type: u2
+      - id: B900
+        name: TM344网络路由表开关
+        type: b2
+        enum: enum_001
+      - id: B9
+        name: 传输次数
+        type: b6
+      - id: B10
+        name: 每次间隔
+        type: u1
+      - id: B1100
+        name: TM345落地节点表开关
+        type: b2
+        enum: enum_001
+      - id: B11
+        name: 传输次数
+        type: b6
+      - id: B12
+        name: 每次间隔
+        type: u1
+      - id: B1300
+        name: TM346广播记录表开关
+        type: b2
+        enum: enum_001
+      - id: B13
+        name: 传输次数
+        type: b6
+      - id: B14
+        name: 每次间隔
+        type: u1
+      - id: B1500
+        name: TM347端口配置表开关
+        type: b2
+        enum: enum_001
+      - id: B15
+        name: 传输次数
+        type: b6
+      - id: B16
+        name: 每次间隔
+        type: u1
+      - id: B1700
+        name: TM348星间拓扑表开关
+        type: b2
+        enum: enum_001
+      - id: B17
+        name: 传输次数
+        type: b6
+      - id: B18
+        name: 每次间隔
+        type: u1
+      - id: B1900
+        name: TM349星地拓扑表开关
+        type: b2
+        enum: enum_001
+      - id: B19
+        name: 传输次数
+        type: b6
+      - id: B20
+        name: 每次间隔
+        type: u1
+      - id: B2100
+        name: TM350广播信息端口转发表开关
+        type: b2
+        enum: enum_001
+      - id: B21
+        name: 传输次数
+        type: b6
+      - id: B22
+        name: 每次间隔
+        type: u1
+      - id: B23000
+        name: TM509节点链路状态信息接收状态遥测开关
+        type: b2
+        enum: enum_001
+      - id: B23
+        name: 遥测周期<秒>
+        type: b6
+      - id: B24
+        name: 发包时刻与整点偏离时间<毫秒>
+        type: u2
+    enums:
+      enum_001:
+        0x01: 无效
+        0x00: 关闭
+        0x03: 打开
+enums:
+  virtual_channel_id_value:
+    0b000001: 固定通道  # 固定通道
+    0b010101: 业务通信 # 业务通信
+    0b111111: 空帧 # 空帧
+  factory_tag:
+    0: 未来导航
+    1: 上海小卫星
+    2: 29所
+    3: 704所
+    4: 哈工大
+    5: 东方红海特
+  command_type_value:
+    0xaa: 直接
+    0x55: 延迟
+    0x5a: 立即
+  switch_value:
+    0b01: 无效
+    0b00: 关闭
+    0b11: 打开

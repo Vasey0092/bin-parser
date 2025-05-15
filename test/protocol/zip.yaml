@@ -1,0 +1,173 @@
+meta:
+  id: full_zip_frame
+  name: 完整ZIP帧结构
+  endian: le
+  doc: 包含 local file、central dir 和 EOCD 的完整 ZIP 结构
+root:
+  seq:
+    - id: local_file_header
+      name: 本地文件头
+      type: local_file_header
+      size: 53
+    - id: central_directory
+      name: 中央目录
+      type: central_directory
+      size: 57
+    - id: end_of_central_directory
+      name: 结尾目录
+      type: end_of_central_directory
+      size: 22
+    - id: extra_domain
+      name: 额外信息(自动生成信息)
+      type: extra_domain  
+types:
+  local_file_header:
+    seq:
+      - id: signature
+        contents: [0x50, 0x4b, 0x03, 0x04]
+      - id: version_needed
+        type: u2
+      - id: general_flags
+        type: u2
+      - id: compression_method
+        type: u2
+        enum: compression
+      - id: last_mod_time
+        type: u2
+      - id: last_mod_date
+        type: u2
+      - id: crc32
+        type: u4
+      - id: compressed_size
+        type: u4
+      - id: uncompressed_size
+        type: u4
+      - id: file_name_len
+        type: u2
+      - id: extra_field_len
+        type: u2
+      - id: file_name
+        type: str
+        size: file_name_len
+      - id: file_data
+        type: str
+        size: 12
+  central_directory:
+    seq:
+      - id: signature
+        contents: [0x50, 0x4b, 0x01, 0x02]
+      - id: version_made_by
+        type: u2
+      - id: version_needed
+        type: u2
+      - id: flags
+        type: u2
+      - id: compression_method
+        type: u2
+        enum: compression
+      - id: mod_time
+        type: u2
+      - id: mod_date
+        type: u2
+      - id: crc32
+        type: u4
+      - id: compressed_size
+        type: u4
+      - id: uncompressed_size
+        type: u4
+      - id: file_name_len
+        type: u2
+      - id: extra_field_len
+        type: u2
+      - id: file_comment_len
+        type: u2
+      - id: disk_number_start
+        type: u2
+      - id: internal_file_attr
+        type: u2
+      - id: external_file_attr
+        type: u4
+      - id: local_header_offset
+        type: u4
+      - id: file_name
+        type: str
+        size: file_name_len
+  end_of_central_directory:
+    seq:
+      - id: signature
+        contents: [0x50, 0x4b, 0x05, 0x06]
+      - id: disk_number
+        type: u2
+      - id: start_central_dir_disk
+        type: u2
+      - id: num_records_this_disk
+        type: u2
+      - id: total_num_records
+        type: u2
+      - id: central_dir_size
+        type: u4
+      - id: central_dir_offset
+        type: u4
+      - id: comment_length
+        type: u2
+      - id: comment
+        type: bytes
+        size: comment_length
+  extra_domain:
+    seq:
+      - id: LocalTime
+        name: 当前解析时间
+        type: expr
+        expr: GroundTime()
+enums:
+  compression:
+    0: none
+    1: shrunk
+    2: reduced_1
+    3: reduced_2
+    4: reduced_3
+    5: reduced_4
+    6: imploded
+    8: deflated
+    9: enhanced_deflated
+    10: pkware_dcl_imploded
+    12: bzip2
+    14: lzma
+    18: ibm_terse
+    19: ibm_lz77_z
+    93: zstandard
+    94: mp3
+    95: xz
+    96: jpeg
+    97: wavpack
+    98: ppmd
+    99: aex_encryption_marker
+  extra_codes:
+    # https://github.com/LuaDist/zip/blob/b710806/proginfo/extrafld.txt
+    0x0001: zip64
+    0x0007: av_info
+#    0x0008: reserved for extended language encoding data (PFS) (see APPENDIX D)
+    0x0009: os2
+    0x000a: ntfs
+    0x000c: openvms
+    0x000d: pkware_unix
+    0x000e: file_stream_and_fork_descriptors
+    0x000f: patch_descriptor
+    0x0014: pkcs7
+    0x0015: x509_cert_id_and_signature_for_file
+    0x0016: x509_cert_id_for_central_dir
+    0x0017: strong_encryption_header
+    0x0018: record_management_controls
+    0x0019: pkcs7_enc_recip_cert_list
+    0x0065: ibm_s390_uncomp
+    0x0066: ibm_s390_comp
+    0x4690: poszip_4690
+    0x5455: extended_timestamp
+    0x6542: beos
+    0x756e: asi_unix
+    0x7855: infozip_unix
+    0x7875: infozip_unix_var_size
+    0xa11e: apache_commons_compress
+    0xa220: microsoft_open_packaging_growth_hint
+    0xfd4a: sms_qdos
+    0x9901: aex_encryption

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "benchmark": "^2.1.4",
+    "expr-eval": "^2.0.2",
+    "js-yaml": "^4.1.0",
+    "json-bigint": "^1.0.0"
+  }
+}

@@ -1,0 +1,29 @@
+meta:
+  id: xframedata
+  name: xxx数据帧
+  endian: be
+  doc: xxx数据帧
+  payload: data_domain.mpdu_domain.mpdu_data_array
+root:
+  seq:
+      - id: sync_tag
+        name: 同步头
+        contents: [0x1a, 0xcf, 0xfc, 0x1d]
+      - id: dominant_head
+        name: 主导头
+        type: dominant_head
+        size: 8
+types:
+  dominant_head:
+    seq:
+      id: virtual_channel_id
+          name: 虚拟通道ID
+          type: b6
+          enum: virtual_channel_id_value
+          default: 0b000001
+          setvalue: Param("virtual_channel_id")
+enums:
+  virtual_channel_id_value:
+      0b000001: 固定通道  # 固定通道
+      0b010101: 业务通信 # 业务通信
+      0b111111: 空帧 # 空帧
